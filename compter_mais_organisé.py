@@ -1,5 +1,4 @@
 from urllib.request import urlopen
-
 from bs4 import BeautifulSoup
 
 
@@ -86,39 +85,38 @@ def scan_url(url_page):
     return htmlSource
 
 
-
-letexte = input("Saisissez un texte : ")
-dico_trie = compter_des_mots(letexte)
-resultat_liste_utile = suppression_parasite(dico_trie, liste_parasite)
-print(resultat_liste_utile)
-
-html="""<html>
-    <head>
-    <title>Titre du test</title>
-    </head>
-    <body>
-        <a href="http://www.youtube.com">Youtube wsh</a>
-        <img src="" alt="image youtube">
-        <a href="http://www.facebook.com">Facebook</a>
-        <img src="" alt="image facebook">
-    </body>
-</html>"""
+def meta_keywords(html):
+    soup = BeautifulSoup(html, 'html.parser')
+    meta_keywords = soup.find('meta', attrs={'name': 'keywords'})
+    if meta_keywords:
+        keywords_content = meta_keywords.get('content').split(',')
+        keywords_content = [keyword.strip() for keyword in keywords_content]
+        return keywords_content
 
 
-print(rechercher_html(html, "a", "href"))
-print(rechercher_html(html, "img", "alt"))
-print(index_http(tri_http("http://www.youtube.com/trouduc")))
-print(index_http(tri_http("www.youtube.com/pouetpouet")))
-print(index_http(tri_http("http://www.bing.chilling.com/john_cena")))
+def main():
 
-monsite = "www.monsite.com"
-maliste = ["www.monsite.com/page57", "www.autresite.com/oral"]
-jsp_site = tri_site(monsite, maliste)
-print(jsp_site)
-print(jsp_site[0])
-print(jsp_site[1])
-print(encore_une_def_de_liste(jsp_site[0]))
-codehtml = scan_url("https://ronanzambon.fr/").__str__()
-print(type(codehtml))
-print(rechercher_html(codehtml, "a", "href"))
+    url = input("Entrez l'url du site à espionner: ")
 
+    #on utilise scan_url pour ouvrir la page puis choper le code
+    texte_html = scan_url(url)
+
+    #scan des keywords du texte de l'url puis affichage de tous puis affichage des 3 premiers par occurence
+    c_koi_les_keywords = meta_keywords(texte_html)
+    print("Voici les mots-clés du site web: ", c_koi_les_keywords)
+    compter_les_keywords = compter_des_mots(" ".join(c_koi_les_keywords))
+    trois_premiers_words = {k:compter_les_keywords[k] for k in list(compter_les_keywords)[:3]}
+    print("Voici les 3 premiers mots-clés du site, classé par occurence: ",trois_premiers_words)
+
+    #on tri les balises alt puis affiche
+    balises_alt = rechercher_html(texte_html, "img", "alt")
+    print("Voici les balises alt présentes sur ce site: ", balises_alt)
+
+    #pareil mais avec les liens puis on affiche ceux sortants et ceux entrants
+    liens = rechercher_html(texte_html, "a", "href")
+    tri_liens = tri_site(url, liens)
+    print("Voici les liens entrants dans le site: ", tri_liens[0])
+    print("Voici les liens sortants du site: ", tri_liens[1])
+
+
+print(main())
