@@ -88,31 +88,32 @@ def scan_url(url_page):
 def meta_keywords(html):
     soup = BeautifulSoup(html, 'html.parser')
     meta_keywords = soup.find('meta', attrs={'name': 'keywords'})
+    keywords_content = []
     if meta_keywords:
         keywords_content = meta_keywords.get('content').split(',')
         keywords_content = [keyword.strip() for keyword in keywords_content]
-        return keywords_content
+    return keywords_content
 
 
 def main():
 
     url = input("Entrez l'url du site à espionner: ")
 
-    #on utilise scan_url pour ouvrir la page puis choper le code
+    # on utilise scan_url pour ouvrir la page puis choper le code
     texte_html = scan_url(url)
 
-    #scan des keywords du texte de l'url puis affichage de tous puis affichage des 3 premiers par occurence
+    # scan des keywords du texte de l'url puis affichage de tous puis affichage des 3 premiers par occurence
     c_koi_les_keywords = meta_keywords(texte_html)
     print("Voici les mots-clés du site web: ", c_koi_les_keywords)
     compter_les_keywords = compter_des_mots(" ".join(c_koi_les_keywords))
     trois_premiers_words = {k:compter_les_keywords[k] for k in list(compter_les_keywords)[:3]}
     print("Voici les 3 premiers mots-clés du site, classé par occurence: ",trois_premiers_words)
 
-    #on tri les balises alt puis affiche
+    # on tri les balises alt puis affiche
     balises_alt = rechercher_html(texte_html, "img", "alt")
     print("Voici les balises alt présentes sur ce site: ", balises_alt)
 
-    #pareil mais avec les liens puis on affiche ceux sortants et ceux entrants
+    # pareil mais avec les liens puis on affiche ceux sortants et ceux entrants
     liens = rechercher_html(texte_html, "a", "href")
     tri_liens = tri_site(url, liens)
     print("Voici les liens entrants dans le site: ", tri_liens[0])
